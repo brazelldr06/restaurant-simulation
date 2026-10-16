@@ -1,0 +1,38 @@
+TUID=tuv12869 CUSTOMERS=5 TABLES=2 WAITERS=1 CHEFS=1
+[T+00.000] [SIM     ] simulation started
+[T+00.000] [CUSTOMER] cid=0 state=ARRIVING Customer 0 arrived
+[T+00.000] [CUSTOMER] cid=1 state=ARRIVING Customer 1 arrived
+[T+00.000] [CUSTOMER] cid=2 state=ARRIVING Customer 2 arrived
+[T+00.000] [CUSTOMER] cid=3 state=ARRIVING Customer 3 arrived
+[T+00.000] [CUSTOMER] cid=4 state=ARRIVING Customer 4 arrived
+[T+00.100] [CUSTOMER] cid=0 state=QUEUED Customer 0 waiting for table
+[T+00.100] [CUSTOMER] cid=1 state=QUEUED Customer 1 waiting for table
+[T+00.100] [CUSTOMER] cid=3 state=QUEUED Customer 3 waiting for table
+[T+00.100] [CUSTOMER] cid=2 state=QUEUED Customer 2 waiting for table
+[T+00.100] [CUSTOMER] cid=4 state=QUEUED Customer 4 waiting for table
+[T+00.200] [CUSTOMER] cid=1 state=SEATED tid=1 Customer 1 seated
+[T+00.200] [CUSTOMER] cid=0 state=SEATED tid=0 Customer 0 seated
+[T+00.200] [CUSTOMER] cid=3 state=SEATED tid=1 Customer 3 seated
+[T+00.200] [CUSTOMER] cid=2 state=SEATED tid=0 Customer 2 seated
+[T+00.200] [CUSTOMER] cid=4 state=SEATED tid=0 Customer 4 seated
+[T+00.300] [CUSTOMER] cid=1 state=ORDERING tid=1 Customer 1 placing order
+[T+00.300] [CUSTOMER] cid=1 state=WAITING_FOR_MEAL tid=1 Customer 1 waiting for meal
+[T+00.300] [CUSTOMER] cid=4 state=ORDERING tid=0 Customer 4 placing order
+[T+00.300] [CUSTOMER] cid=4 state=WAITING_FOR_MEAL tid=0 Customer 4 waiting for meal
+[T+00.300] [CUSTOMER] cid=2 state=ORDERING tid=0 Customer 2 placing order
+[T+00.300] [CUSTOMER] cid=2 state=WAITING_FOR_MEAL tid=0 Customer 2 waiting for meal
+[T+00.300] [CUSTOMER] cid=3 state=ORDERING tid=1 Customer 3 placing order
+[T+00.300] [CUSTOMER] cid=3 state=WAITING_FOR_MEAL tid=1 Customer 3 waiting for meal
+[T+00.300] [CUSTOMER] cid=0 state=ORDERING tid=0 Customer 0 placing order
+[T+00.300] [CUSTOMER] cid=0 state=WAITING_FOR_MEAL tid=0 Customer 0 waiting for meal
+[T+00.600] [CUSTOMER] cid=1 state=EATING tid=1 Customer 1 eating
+[T+00.600] [CUSTOMER] cid=2 state=EATING tid=0 Customer 2 eating
+[T+00.600] [CUSTOMER] cid=4 state=EATING tid=0 Customer 4 eating
+[T+00.600] [CUSTOMER] cid=3 state=EATING tid=1 Customer 3 eating
+[T+00.600] [CUSTOMER] cid=0 state=EATING tid=0 Customer 0 eating
+[T+01.100] [CUSTOMER] cid=1 state=LEAVING tid=1 Customer 1 leaving
+[T+01.100] [CUSTOMER] cid=0 state=LEAVING tid=0 Customer 0 leaving
+[T+01.100] [CUSTOMER] cid=2 state=LEAVING tid=0 Customer 2 leaving
+[T+01.100] [CUSTOMER] cid=4 state=LEAVING tid=0 Customer 4 leaving
+[T+01.100] [CUSTOMER] cid=3 state=LEAVING tid=1 Customer 3 leaving
+[T+01.101] [SIM     ] DONE total_served=5
