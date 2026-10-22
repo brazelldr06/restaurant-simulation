@@ -9,8 +9,120 @@
 SimLog *simLog = NULL;
 atomic_int sim_done = 0;
 int totalTables = 5;
+WaitingQueue wq;
+OrderQueue oq;
+sem_t tables_sem;
+int *tableOccupied;
+pthread_mutex_t table_mutex;
+Customer *customers;
+Waiter *waiters;
 
+void release_customer_slot(Customer *customer) {
 
+    pthread_mutex_lock(&table_mutex);
+    tableOccupied[customer->table_id] = 0;
+    pthread_mutex_unlock(&table_mutex);
+    sem_post(&tables_sem);
+    Waiter *waiter = &waiters[customer->waiter_id];
+    pthread_mutex_lock(&waiter->load_mutex);
+    waiter->current_customer_count --;
+    log_waiter_load(simLog, waiter->id, customer->id, waiter->current_customer_count,
+                    "Waiter released customer");
+    pthread_cond_signal(&waiter->load_cond);
+    pthread_mutex_unlock(&waiter->load_mutex);
+}
+
+void waiting_queue_enqueue(WaitingQueue *q, int id) {
+    pthread_mutex_lock(&q->mutex);
+
+    while (q->count == q->capacity) {
+        pthread_cond_wait(&q->not_full, &q->mutex);
+    }
+
+    q->buf[q->tail] = id;
+    q->tail = (q->tail + 1) % q->capacity;
+    q->count++;
+    pthread_cond_signal(&q->not_empty);
+    pthread_mutex_unlock(&q->mutex);
+}
+
+int order_queue_enqueue(OrderQueue *q, Order order) {
+    pthread_mutex_lock(&q->mutex);
+
+    while(q->count == q->capacity) {
+        pthread_cond_wait(&q->not_full, &q->mutex);
+    }
+
+    q->buf[q->tail] = order;
+    q->tail = (q->tail + 1) % q->capacity;
+    q->count++;
+    int queueLength = q->count;
+    pthread_cond_signal(&q->not_empty);
+    pthread_mutex_unlock(&q->mutex);
+
+    return queueLength;
+}
+
+Order order_queue_dequeue(OrderQueue *q) {
+    pthread_mutex_lock(&q->mutex);
+
+    while (q->count == 0) {
+        if (sim_done) {
+            pthread_mutex_unlock(&q->mutex);
+
+            Order finished = {-1,-1,NULL};
+            return finished;
+        }
+
+        struct timespec dl;
+        clock_gettime(CLOCK_REALTIME, &dl);
+        dl.tv_nsec += 100000000L;
+
+        if (dl.tv_nsec >= 1000000000L) {
+            dl.tv_sec += 1;
+            dl.tv_nsec -= 1000000000L;
+        }
+
+        pthread_cond_timedwait(&q->not_empty, &q->mutex, &dl);
+    }
+
+    Order order = q->buf[q->head];
+    q->head = (q->head + 1) % q->capacity;
+    q->count--;
+    pthread_cond_signal(&q->not_full);
+    pthread_mutex_unlock(&q->mutex);
+    return order;
+    
+}
+
+int waiting_queue_dequeue(WaitingQueue *q) {
+    pthread_mutex_lock(&q->mutex);
+
+    while (q->count == 0) {
+        if (sim_done) {
+            pthread_mutex_unlock(&q->mutex);
+            return -1;
+        }
+
+        struct timespec dl;
+        clock_gettime(CLOCK_REALTIME, &dl);
+        dl.tv_nsec += 100000000L;
+
+        if (dl.tv_nsec >= 1000000000L) {
+            dl.tv_sec += 1;
+            dl.tv_nsec -= 1000000000L;
+        }
+
+        pthread_cond_timedwait(&q->not_empty, &q->mutex, &dl);
+    }
+
+    int id = q->buf[q->head];
+    q->head = (q->head + 1) % q->capacity;
+    q->count--;
+    pthread_cond_signal(&q->not_full);
+    pthread_mutex_unlock(&q->mutex);
+    return id;
+}
 
 void *customer_thread(void *arg) {
 
@@ -31,14 +143,23 @@ void *customer_thread(void *arg) {
     snprintf(message, sizeof(message), "Customer %d waiting for table", customer->id);
     log_customer_state(simLog, customer->id, "QUEUED", customer->table_id, message);
 
-    nanosleep(&ts, NULL);
+    waiting_queue_enqueue(&wq, customer->id);
 
-    customer->table_id = customer->id % totalTables;
-    customer->state = STATE_SEATED;
+    for (;;) {
+
+        pthread_mutex_lock(&customer->meal_mutex);
+        int seated = (customer->state == STATE_SEATED);
+        pthread_mutex_unlock(&customer->meal_mutex);
+
+        if (seated) {
+            break;
+        }
+
+        nanosleep(&ts, NULL);
+    }
+
     snprintf(message, sizeof(message), "Customer %d seated", customer->id);
     log_customer_state(simLog, customer->id, "SEATED", customer->table_id, message);
-
-    nanosleep(&ts, NULL);
 
     customer->state = STATE_ORDERING;
     snprintf(message, sizeof(message), "Customer %d placing order", customer->id);
@@ -62,6 +183,7 @@ void *customer_thread(void *arg) {
     snprintf(message, sizeof(message), "Customer %d leaving", customer->id);
     log_customer_state(simLog, customer->id, "LEAVING", customer->table_id, message);
 
+    release_customer_slot(customer);
     
     return NULL;
 }
@@ -70,17 +192,45 @@ void *waiter_thread(void *arg) {
 
     Waiter *waiter = arg;
 
-    struct timespec ts;
-    ts.tv_sec = 0;
-    ts.tv_nsec = 100 * 1000000L;
+    for (;;) {
+        int cid = waiting_queue_dequeue(&wq);
 
-    while (!sim_done) {
+        if (cid < 0) {
+            break;
+        }
 
-        nanosleep(&ts, NULL);
+        sem_wait(&tables_sem);
+        pthread_mutex_lock(&table_mutex);
+        int table = -1;
 
+        for (int i = 0; i < totalTables; i++) {
+            if (tableOccupied[i] == 0) {
+                tableOccupied[i] = 1;
+                table = i;
+                break;
+            }
+        }
+
+        pthread_mutex_unlock(&table_mutex);
+        Customer *customer = &customers[cid];
+        pthread_mutex_lock(&waiter->load_mutex);
+        waiter->current_customer_count ++;
+        log_waiter_load(simLog, waiter->id, cid, waiter->current_customer_count,
+                        "waiter seated customer");
+        pthread_mutex_unlock(&waiter->load_mutex);
+        pthread_mutex_lock(&customer->meal_mutex);
+        customer->table_id = table;
+        customer->waiter_id = waiter->id;
+        customer->state = STATE_SEATED;
+        pthread_mutex_unlock(&customer->meal_mutex);
+
+        Order order;
+        order.customer_id = cid;
+        order.waiter_id = waiter->id;
+        order.item = MENU[cid % MENU_SIZE];
+        int queueLength = order_queue_enqueue(&oq, order);
+        log_order_queued(simLog, waiter->id, cid, order.item, queueLength);
     }
-
-    (void)waiter;
 
     return NULL;
 
@@ -90,21 +240,26 @@ void *chef_thread(void *arg) {
 
     int *chef_id = arg;
 
-    struct timespec ts;
-    ts.tv_sec = 0;
-    ts.tv_nsec = 100 * 1000000L;
+    for (;;) {
+        Order order = order_queue_dequeue(&oq);
 
-    while (!sim_done) {
+        if (order.customer_id < 0) {
+            break;
+        }
+
+        struct timespec ts;
+        ts.tv_sec = 0;
+        ts.tv_nsec = COOK_MIN_MS * 1000000L;
 
         nanosleep(&ts, NULL);
 
+        log_meal_ready(simLog, *chef_id, order.customer_id, order.item);
     }
 
-    (void)chef_id;
-
     return NULL;
-
 }
+
+
 
 int main(int argc, char *argv[]) {
 
@@ -149,10 +304,77 @@ int main(int argc, char *argv[]) {
 
     totalTables = numTables;
 
-    Customer *customers = malloc(numCustomers * sizeof(Customer));
+    if (sem_init(&tables_sem, 0, numTables) != 0) {
+        fprintf(stderr, "Failed to initialize table semaphore\n");
+        return 1;
+    }
+
+    tableOccupied = malloc(numTables * sizeof(int));
+
+    if (tableOccupied == NULL) {
+        fprintf(stderr, "Failed to allocate tables\n");
+        sem_destroy(&tables_sem);
+        return 1;
+    }
+
+    for (int i = 0; i < numTables; i++) {
+        tableOccupied[i] = 0;
+    }
+
+    pthread_mutex_init(&table_mutex, NULL);
+
+
+    wq.capacity = numCustomers;
+    wq.buf = malloc(wq.capacity * sizeof(int));
+
+    if (wq.buf == NULL) {
+        fprintf(stderr, "Failed to allocate waiting queue\n");
+
+        pthread_mutex_destroy(&table_mutex);
+        sem_destroy(&tables_sem);
+        free(tableOccupied);
+
+        return 1;
+    }
+
+    wq.head = 0;
+    wq.tail = 0;
+    wq.count = 0;
+
+    pthread_mutex_init(&wq.mutex, NULL);
+    pthread_cond_init(&wq.not_empty, NULL);
+    pthread_cond_init(&wq.not_full, NULL);
+
+    oq.capacity = numCustomers;
+    oq.buf = malloc(oq.capacity * sizeof(Order));
+
+    if (oq.buf == NULL) {
+        fprintf(stderr, "Failed to allocate order queue\n");
+
+        pthread_mutex_destroy(&wq.mutex);
+        pthread_cond_destroy(&wq.not_empty);
+        pthread_cond_destroy(&wq.not_full);
+        free(wq.buf);
+        pthread_mutex_destroy(&table_mutex);
+        sem_destroy(&tables_sem);
+        free(tableOccupied);
+
+        return 1;
+
+    }
+
+    oq.head = 0;
+    oq.tail = 0;
+    oq.count = 0;
+
+    pthread_mutex_init(&oq.mutex, NULL);
+    pthread_cond_init(&oq.not_empty, NULL);
+    pthread_cond_init(&oq.not_full, NULL);
+
+    customers = malloc(numCustomers * sizeof(Customer));
     pthread_t *customerThreads = malloc(numCustomers * sizeof(pthread_t));
 
-    Waiter *waiters = malloc(numWaiters * sizeof(Waiter));
+    waiters = malloc(numWaiters * sizeof(Waiter));
     pthread_t *waiterThreads = malloc(numWaiters * sizeof(pthread_t));
 
     pthread_t *chefThreads = malloc(numChefs * sizeof(pthread_t));
@@ -179,11 +401,16 @@ int main(int argc, char *argv[]) {
             customers[i].table_id = -1;
             customers[i].waiter_id = -1;
             customers[i].meal_ready = 0;
+            pthread_mutex_init(&customers[i].meal_mutex, NULL);
+            pthread_cond_init(&customers[i].meal_cond, NULL);
         }
 
         for (int i = 0; i < numWaiters; i++) {
             waiters[i].id = i;
             waiters[i].current_customer_count = 0;
+
+            pthread_mutex_init(&waiters[i].load_mutex, NULL);
+            pthread_cond_init(&waiters[i].load_cond, NULL);
         }
 
         simLog = log_init("simulation.log", "tuv12869", numCustomers, numTables, 
@@ -242,6 +469,27 @@ int main(int argc, char *argv[]) {
             pthread_join(chefThreads[i], NULL);
         }
 
+        for (int i = 0; i < numCustomers; i++) {
+            pthread_mutex_destroy(&customers[i].meal_mutex);
+            pthread_cond_destroy(&customers[i].meal_cond);
+        }
+
+        for (int i = 0; i < numWaiters; i++) {
+            pthread_mutex_destroy(&waiters[i].load_mutex);
+            pthread_cond_destroy(&waiters[i].load_cond);
+        }
+
+
+    pthread_mutex_destroy(&wq.mutex);
+    pthread_cond_destroy(&wq.not_empty);
+    pthread_cond_destroy(&wq.not_full);
+    pthread_mutex_destroy(&table_mutex);
+    sem_destroy(&tables_sem);
+    pthread_mutex_destroy(&oq.mutex);
+    pthread_cond_destroy(&oq.not_empty);
+    pthread_cond_destroy(&oq.not_full);
+
+
     log_sim_end(simLog, numCustomers);
     log_destroy(simLog); 
 
@@ -251,7 +499,9 @@ int main(int argc, char *argv[]) {
     free(waiterThreads);
     free(chefThreads);
     free(chefIDs);
-
+    free(wq.buf);
+    free(tableOccupied);
+    free(oq.buf);
 
     return 0;
 }

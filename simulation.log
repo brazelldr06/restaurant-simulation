@@ -1,38 +1,113 @@
-TUID=tuv12869 CUSTOMERS=5 TABLES=2 WAITERS=1 CHEFS=1
+TUID=tuv12869 CUSTOMERS=10 TABLES=3 WAITERS=2 CHEFS=1
 [T+00.000] [SIM     ] simulation started
 [T+00.000] [CUSTOMER] cid=0 state=ARRIVING Customer 0 arrived
 [T+00.000] [CUSTOMER] cid=1 state=ARRIVING Customer 1 arrived
-[T+00.000] [CUSTOMER] cid=2 state=ARRIVING Customer 2 arrived
 [T+00.000] [CUSTOMER] cid=3 state=ARRIVING Customer 3 arrived
 [T+00.000] [CUSTOMER] cid=4 state=ARRIVING Customer 4 arrived
+[T+00.000] [CUSTOMER] cid=5 state=ARRIVING Customer 5 arrived
+[T+00.000] [CUSTOMER] cid=6 state=ARRIVING Customer 6 arrived
+[T+00.000] [CUSTOMER] cid=7 state=ARRIVING Customer 7 arrived
+[T+00.000] [CUSTOMER] cid=8 state=ARRIVING Customer 8 arrived
+[T+00.000] [CUSTOMER] cid=9 state=ARRIVING Customer 9 arrived
+[T+00.000] [CUSTOMER] cid=2 state=ARRIVING Customer 2 arrived
 [T+00.100] [CUSTOMER] cid=0 state=QUEUED Customer 0 waiting for table
 [T+00.100] [CUSTOMER] cid=1 state=QUEUED Customer 1 waiting for table
+[T+00.100] [WAITER  ] wid=1 cid=0 load=1 waiter seated customer
+[T+00.100] [WAITER  ] wid=0 cid=1 load=1 waiter seated customer
+[T+00.100] [WAITER  ] wid=1 cid=0 item=BURGER qlen=1 order placed
+[T+00.100] [WAITER  ] wid=0 cid=1 item=PASTA qlen=2 order placed
 [T+00.100] [CUSTOMER] cid=3 state=QUEUED Customer 3 waiting for table
-[T+00.100] [CUSTOMER] cid=2 state=QUEUED Customer 2 waiting for table
 [T+00.100] [CUSTOMER] cid=4 state=QUEUED Customer 4 waiting for table
-[T+00.200] [CUSTOMER] cid=1 state=SEATED tid=1 Customer 1 seated
+[T+00.100] [CUSTOMER] cid=5 state=QUEUED Customer 5 waiting for table
+[T+00.100] [WAITER  ] wid=0 cid=3 load=2 waiter seated customer
+[T+00.100] [WAITER  ] wid=0 cid=3 item=STEAK qlen=2 order placed
+[T+00.100] [CUSTOMER] cid=6 state=QUEUED Customer 6 waiting for table
+[T+00.100] [CUSTOMER] cid=8 state=QUEUED Customer 8 waiting for table
+[T+00.100] [CUSTOMER] cid=7 state=QUEUED Customer 7 waiting for table
+[T+00.100] [CUSTOMER] cid=9 state=QUEUED Customer 9 waiting for table
+[T+00.100] [CUSTOMER] cid=2 state=QUEUED Customer 2 waiting for table
 [T+00.200] [CUSTOMER] cid=0 state=SEATED tid=0 Customer 0 seated
-[T+00.200] [CUSTOMER] cid=3 state=SEATED tid=1 Customer 3 seated
-[T+00.200] [CUSTOMER] cid=2 state=SEATED tid=0 Customer 2 seated
-[T+00.200] [CUSTOMER] cid=4 state=SEATED tid=0 Customer 4 seated
-[T+00.300] [CUSTOMER] cid=1 state=ORDERING tid=1 Customer 1 placing order
-[T+00.300] [CUSTOMER] cid=1 state=WAITING_FOR_MEAL tid=1 Customer 1 waiting for meal
-[T+00.300] [CUSTOMER] cid=4 state=ORDERING tid=0 Customer 4 placing order
-[T+00.300] [CUSTOMER] cid=4 state=WAITING_FOR_MEAL tid=0 Customer 4 waiting for meal
-[T+00.300] [CUSTOMER] cid=2 state=ORDERING tid=0 Customer 2 placing order
-[T+00.300] [CUSTOMER] cid=2 state=WAITING_FOR_MEAL tid=0 Customer 2 waiting for meal
-[T+00.300] [CUSTOMER] cid=3 state=ORDERING tid=1 Customer 3 placing order
-[T+00.300] [CUSTOMER] cid=3 state=WAITING_FOR_MEAL tid=1 Customer 3 waiting for meal
-[T+00.300] [CUSTOMER] cid=0 state=ORDERING tid=0 Customer 0 placing order
-[T+00.300] [CUSTOMER] cid=0 state=WAITING_FOR_MEAL tid=0 Customer 0 waiting for meal
-[T+00.600] [CUSTOMER] cid=1 state=EATING tid=1 Customer 1 eating
-[T+00.600] [CUSTOMER] cid=2 state=EATING tid=0 Customer 2 eating
-[T+00.600] [CUSTOMER] cid=4 state=EATING tid=0 Customer 4 eating
-[T+00.600] [CUSTOMER] cid=3 state=EATING tid=1 Customer 3 eating
-[T+00.600] [CUSTOMER] cid=0 state=EATING tid=0 Customer 0 eating
-[T+01.100] [CUSTOMER] cid=1 state=LEAVING tid=1 Customer 1 leaving
-[T+01.100] [CUSTOMER] cid=0 state=LEAVING tid=0 Customer 0 leaving
-[T+01.100] [CUSTOMER] cid=2 state=LEAVING tid=0 Customer 2 leaving
-[T+01.100] [CUSTOMER] cid=4 state=LEAVING tid=0 Customer 4 leaving
-[T+01.100] [CUSTOMER] cid=3 state=LEAVING tid=1 Customer 3 leaving
-[T+01.101] [SIM     ] DONE total_served=5
+[T+00.200] [CUSTOMER] cid=0 state=ORDERING tid=0 Customer 0 placing order
+[T+00.200] [CUSTOMER] cid=0 state=WAITING_FOR_MEAL tid=0 Customer 0 waiting for meal
+[T+00.200] [CUSTOMER] cid=3 state=SEATED tid=2 Customer 3 seated
+[T+00.200] [CUSTOMER] cid=3 state=ORDERING tid=2 Customer 3 placing order
+[T+00.200] [CUSTOMER] cid=3 state=WAITING_FOR_MEAL tid=2 Customer 3 waiting for meal
+[T+00.200] [CUSTOMER] cid=1 state=SEATED tid=1 Customer 1 seated
+[T+00.200] [CUSTOMER] cid=1 state=ORDERING tid=1 Customer 1 placing order
+[T+00.200] [CUSTOMER] cid=1 state=WAITING_FOR_MEAL tid=1 Customer 1 waiting for meal
+[T+00.400] [CHEF    ] chid=0 cid=0 item=BURGER meal ready
+[T+00.500] [CUSTOMER] cid=0 state=EATING tid=0 Customer 0 eating
+[T+00.500] [CUSTOMER] cid=3 state=EATING tid=2 Customer 3 eating
+[T+00.500] [CUSTOMER] cid=1 state=EATING tid=1 Customer 1 eating
+[T+00.700] [CHEF    ] chid=0 cid=1 item=PASTA meal ready
+[T+01.000] [CUSTOMER] cid=0 state=LEAVING tid=0 Customer 0 leaving
+[T+01.000] [WAITER  ] wid=1 cid=0 load=0 Waiter released customer
+[T+01.000] [CUSTOMER] cid=3 state=LEAVING tid=2 Customer 3 leaving
+[T+01.000] [WAITER  ] wid=0 cid=3 load=1 Waiter released customer
+[T+01.000] [WAITER  ] wid=1 cid=5 load=1 waiter seated customer
+[T+01.000] [WAITER  ] wid=1 cid=5 item=PIZZA qlen=1 order placed
+[T+01.000] [WAITER  ] wid=1 cid=6 load=2 waiter seated customer
+[T+01.000] [WAITER  ] wid=1 cid=6 item=TACOS qlen=2 order placed
+[T+01.000] [CHEF    ] chid=0 cid=3 item=STEAK meal ready
+[T+01.000] [CUSTOMER] cid=1 state=LEAVING tid=1 Customer 1 leaving
+[T+01.000] [WAITER  ] wid=0 cid=1 load=0 Waiter released customer
+[T+01.000] [WAITER  ] wid=1 cid=8 load=3 waiter seated customer
+[T+01.000] [WAITER  ] wid=1 cid=8 item=BURGER qlen=2 order placed
+[T+01.001] [CUSTOMER] cid=8 state=SEATED tid=1 Customer 8 seated
+[T+01.001] [CUSTOMER] cid=8 state=ORDERING tid=1 Customer 8 placing order
+[T+01.001] [CUSTOMER] cid=8 state=WAITING_FOR_MEAL tid=1 Customer 8 waiting for meal
+[T+01.001] [CUSTOMER] cid=6 state=SEATED tid=2 Customer 6 seated
+[T+01.001] [CUSTOMER] cid=6 state=ORDERING tid=2 Customer 6 placing order
+[T+01.001] [CUSTOMER] cid=6 state=WAITING_FOR_MEAL tid=2 Customer 6 waiting for meal
+[T+01.001] [CUSTOMER] cid=5 state=SEATED tid=0 Customer 5 seated
+[T+01.001] [CUSTOMER] cid=5 state=ORDERING tid=0 Customer 5 placing order
+[T+01.001] [CUSTOMER] cid=5 state=WAITING_FOR_MEAL tid=0 Customer 5 waiting for meal
+[T+01.300] [CHEF    ] chid=0 cid=5 item=PIZZA meal ready
+[T+01.301] [CUSTOMER] cid=8 state=EATING tid=1 Customer 8 eating
+[T+01.301] [CUSTOMER] cid=6 state=EATING tid=2 Customer 6 eating
+[T+01.301] [CUSTOMER] cid=5 state=EATING tid=0 Customer 5 eating
+[T+01.600] [CHEF    ] chid=0 cid=6 item=TACOS meal ready
+[T+01.801] [CUSTOMER] cid=8 state=LEAVING tid=1 Customer 8 leaving
+[T+01.801] [WAITER  ] wid=1 cid=8 load=2 Waiter released customer
+[T+01.801] [WAITER  ] wid=1 cid=7 load=3 waiter seated customer
+[T+01.801] [WAITER  ] wid=1 cid=7 item=SUSHI qlen=1 order placed
+[T+01.801] [CUSTOMER] cid=6 state=LEAVING tid=2 Customer 6 leaving
+[T+01.801] [WAITER  ] wid=1 cid=6 load=2 Waiter released customer
+[T+01.801] [WAITER  ] wid=0 cid=4 load=1 waiter seated customer
+[T+01.801] [WAITER  ] wid=0 cid=4 item=SOUP qlen=2 order placed
+[T+01.801] [CUSTOMER] cid=5 state=LEAVING tid=0 Customer 5 leaving
+[T+01.801] [WAITER  ] wid=1 cid=5 load=1 Waiter released customer
+[T+01.801] [WAITER  ] wid=1 cid=9 load=2 waiter seated customer
+[T+01.801] [WAITER  ] wid=1 cid=9 item=PASTA qlen=3 order placed
+[T+01.801] [CUSTOMER] cid=9 state=SEATED tid=0 Customer 9 seated
+[T+01.801] [CUSTOMER] cid=9 state=ORDERING tid=0 Customer 9 placing order
+[T+01.801] [CUSTOMER] cid=9 state=WAITING_FOR_MEAL tid=0 Customer 9 waiting for meal
+[T+01.801] [CUSTOMER] cid=7 state=SEATED tid=1 Customer 7 seated
+[T+01.801] [CUSTOMER] cid=7 state=ORDERING tid=1 Customer 7 placing order
+[T+01.801] [CUSTOMER] cid=7 state=WAITING_FOR_MEAL tid=1 Customer 7 waiting for meal
+[T+01.801] [CUSTOMER] cid=4 state=SEATED tid=2 Customer 4 seated
+[T+01.801] [CUSTOMER] cid=4 state=ORDERING tid=2 Customer 4 placing order
+[T+01.801] [CUSTOMER] cid=4 state=WAITING_FOR_MEAL tid=2 Customer 4 waiting for meal
+[T+01.900] [CHEF    ] chid=0 cid=8 item=BURGER meal ready
+[T+02.101] [CUSTOMER] cid=9 state=EATING tid=0 Customer 9 eating
+[T+02.101] [CUSTOMER] cid=7 state=EATING tid=1 Customer 7 eating
+[T+02.102] [CUSTOMER] cid=4 state=EATING tid=2 Customer 4 eating
+[T+02.200] [CHEF    ] chid=0 cid=7 item=SUSHI meal ready
+[T+02.501] [CHEF    ] chid=0 cid=4 item=SOUP meal ready
+[T+02.601] [CUSTOMER] cid=9 state=LEAVING tid=0 Customer 9 leaving
+[T+02.601] [WAITER  ] wid=1 cid=9 load=1 Waiter released customer
+[T+02.601] [WAITER  ] wid=0 cid=2 load=2 waiter seated customer
+[T+02.602] [WAITER  ] wid=0 cid=2 item=SALAD qlen=1 order placed
+[T+02.602] [CUSTOMER] cid=7 state=LEAVING tid=1 Customer 7 leaving
+[T+02.602] [WAITER  ] wid=1 cid=7 load=0 Waiter released customer
+[T+02.602] [CUSTOMER] cid=4 state=LEAVING tid=2 Customer 4 leaving
+[T+02.602] [WAITER  ] wid=0 cid=4 load=1 Waiter released customer
+[T+02.602] [CUSTOMER] cid=2 state=SEATED tid=0 Customer 2 seated
+[T+02.602] [CUSTOMER] cid=2 state=ORDERING tid=0 Customer 2 placing order
+[T+02.602] [CUSTOMER] cid=2 state=WAITING_FOR_MEAL tid=0 Customer 2 waiting for meal
+[T+02.801] [CHEF    ] chid=0 cid=9 item=PASTA meal ready
+[T+02.902] [CUSTOMER] cid=2 state=EATING tid=0 Customer 2 eating
+[T+03.101] [CHEF    ] chid=0 cid=2 item=SALAD meal ready
+[T+03.402] [CUSTOMER] cid=2 state=LEAVING tid=0 Customer 2 leaving
+[T+03.402] [WAITER  ] wid=0 cid=2 load=0 Waiter released customer
+[T+03.502] [SIM     ] DONE total_served=10
